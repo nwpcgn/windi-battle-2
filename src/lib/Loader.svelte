@@ -4,7 +4,7 @@
 </script>
 
 {#if type == 1}
-	<section class="fixed inset-0 z-50 bg-black bg-opacity-25 flex flex-col">
+	<section class="fixed inset-0 z-50 bg-gray-50 bg-opacity-50 flex flex-col">
 		<div class="m-auto">
 			<span class="loader" />
 		</div>
