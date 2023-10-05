@@ -127,6 +127,7 @@ body {
 
 
 
+
 .btn {
   @apply capitalize py-2 px-3 leading-tight font-light rounded-none border text-center transition-all duration-100 shadow;
 }
@@ -217,10 +218,15 @@ pre {
 	left: 0;
 	display: grid;
 	overflow: hidden;
-	grid-template-areas: "sec1 sec2"
+  grid-template-areas: "sec1 sec2"
+  "sec5 sec4"
+  "sec3 sec4";
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr 60px;
+	/* grid-template-areas: "sec1 sec2"
 		"sec3 sec4";
 	grid-template-columns: 1fr 1fr;
-	grid-template-rows: auto 1fr;
+	grid-template-rows: auto 1fr; */
 }
 
 .sector {

@@ -1,6 +1,7 @@
 <script>
 	import { _daten } from '../lib/db'
-	import { sleep } from '../lib/util'
+	import { path } from 'elegua'
+	import { sleep, clickOutside } from '../lib/util'
 	import { textLog, clearLogs } from '../lib/battle/TextLogger.svelte'
 	import Heroes from '../lib/battle/Heroes'
 	import Layer from '../lib/Layer.svelte'
@@ -15,6 +16,7 @@
 	let player, enemy
 	let devmode = true
 	let battle = 'ready'
+	let open = false
 	let ended = true
 	let locked = false
 	let turn = 0
@@ -41,6 +43,7 @@
 		} catch (error) {
 			ended = true
 			battle = 'ended'
+			open = false
 			let msg = ''
 			if (error.length > 1) {
 				msg = 'Double KO!'
@@ -53,7 +56,7 @@
 		}
 	}
 	const logText = (text, type = 'info', timeout = 0, dismissible = true) => {
-		console.log('XXX - logText(text)', text, type)
+		// console.log('XXX - logText(text)', text, type)
 		textLog({
 			text,
 			type,
@@ -127,7 +130,8 @@
 			damageTaken('playermiss', 'player')
 			logText('💫 The Enemy stumbles over his own feet!', 'blank')
 		}
-
+		await sleep(800)
+		logText(`⌛ Turn end!`, 'terminal')
 		console.log(
 			`dice: ${x} | hardAtt: ${enemy.figther.hardAttackDice} | weakAtt: ${enemy.figther.weakAttackDice}`
 		)
@@ -149,10 +153,11 @@
 		if (!check) return
 		clearLogs()
 		lockActionButtons(true)
+		open = false
 		ended = false
 		battle = 'run'
 		turn++
-		logText(`⌛ Turn ${turn}`, 'terminal')
+		logText(`⌛ Turn ${turn}!`, 'terminal')
 		let x = throwDice(1, 10)
 		let _del = throwDice(400, 900)
 		await sleep(800 + _del)
@@ -223,19 +228,11 @@
 			<div>
 				<h1 class="text-4xl font-medium">{title}</h1>
 			</div>
-
-			<nav class="flex gap-1 justify-center">
-				{#each pages as { name, href, hidden }}
-					{#if href !== '/battle' && !hidden}
-						<a {href} class="btn">{name}</a>
-					{/if}
-				{/each}
-			</nav>
 		</header>
 
 		{#if enemy.figther && player.figther}
 			<article class="flex-grow relative bg-gray-50">
-				<div class="grid-container p-4 gap-4">
+				<div class="grid-container p-2 gap-2">
 					<div class="sector sec1 space-y-4">
 						<SelectFigther
 							label="player"
@@ -277,8 +274,29 @@
 								short />
 						{/each}
 					</div>
-					<footer class="sector sec3">
-						<nav class="grid grid-cols-3 p-1 gap-1 bg-gray-100 rounded shadow">
+					<footer class="relative overflow-hidden sec3">
+						<nav
+							class="absolute inset-0 flex gap-1 transform transition-all duration-500"
+							class:translate-y-full={open || locked}
+							class:opacity-5={open || locked}>
+							<button on:click={() => (open = true)} class="btn flex-1"
+								>Fight</button>
+							<button on:click={() => $path === '/settings'} class="btn flex-1"
+								>Settings</button>
+							<button on:click={() => $path === '/'} class="btn flex-1"
+								>Exit</button>
+						</nav>
+						<nav
+							class="bg-gray-100 shadow absolute inset-0 flex fex-col items-center justify-center transform transition-opacity duration-500"
+							class:opacity-0={!locked}
+							class:translate-y-full={!locked}>
+							<span class="text-shadow-md font-mono">... battle</span>
+						</nav>
+
+						<nav
+							class="bg-white absolute inset-0 grid grid-cols-3 gap-1 transform transition-all duration-500"
+							class:translate-y-full={!open}
+							class:opacity-5={locked}>
 							{#each player.figther.attacks as [attackName, successDice, damage, attackDescription, missDescription], i}
 								<button
 									class="btn"
