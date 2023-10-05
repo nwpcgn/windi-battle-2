@@ -7,14 +7,13 @@
 	import ArenaCard from '../lib/battle/ArenaCard.svelte'
 	import Message from '../lib/battle/Message.svelte'
 	import ModalV2, { openModalV2 } from '../lib/components/ModalV2.svelte'
-	import PanelBar from '../lib/battle/PanelBar.svelte'
 	import SelectFigther from '../lib/battle/SelectFigther.svelte'
 	import SelectHealth from '../lib/battle/SelectHealth.svelte'
 	import TextLogger from '../lib/battle/TextLogger.svelte'
 	export let pages = []
 	export let title = 'Battle'
 	let player, enemy
-	let devmode = false
+	let devmode = true
 	let battle = 'ready'
 	let ended = true
 	let locked = false
@@ -25,6 +24,33 @@
 	}
 	const test = (msg) => {
 		openModalV2(Message, { text: msg })
+	}
+	const checkHealth = () => {
+		return new Promise((resolve, reject) => {
+			let d = []
+			if (player.health < 1) d.push('player')
+			if (enemy.health < 1) d.push('enemy')
+			if (d.length) reject(d)
+			resolve()
+		})
+	}
+	const checkBattle = async () => {
+		try {
+			await checkHealth()
+			return true
+		} catch (error) {
+			ended = true
+			battle = 'ended'
+			let msg = ''
+			if (error.length > 1) {
+				msg = 'Double KO!'
+			} else {
+				msg = error[0] === 'player' ? '☠️ You are death!' : '☠️ Enemy is death!'
+			}
+			clearLogs()
+			logText(msg, error[0] === 'player' ? 'error' : 'success')
+			return false
+		}
 	}
 	const logText = (text, type = 'info', timeout = 0, dismissible = true) => {
 		console.log('XXX - logText(text)', text, type)
@@ -66,45 +92,45 @@
 			let nh = player.health - number
 			player.health = nh < 0 ? 0 : nh
 		}
+		await sleep(200)
+		logText(`Enemy attacks ...`, 'warning')
+		await sleep(200)
+		logText(`${enemy.figther.name} waves his spear at you`, 'warning')
 		let x = throwDice(1, 10)
-		let attackMessage = `${enemy.figther.name} attempt to attack...`
-		logText(attackMessage)
 		let _del = throwDice(300, 900)
 		await sleep(800 + _del)
+		_del = throwDice(300, 500)
 		if (x >= enemy.figther.hardAttackDice) {
-			let attac_msg = `${enemy.figther.name} waves his spear at you`
-			logText(attac_msg, 'warning')
 			damageTaken('attacke', 'enemy')
-			let _del = throwDice(300, 500)
 			await sleep(400 + _del)
-			let damageText = `⚔️ You take ${enemy.figther.hardAttackDamage} points of critical damage`
-			logText(damageText, 'error')
-			updatePlayerHealth(enemy.figther.hardAttackDamage)
 			damageTaken('damages', 'player')
+			logText(
+				`⚔️ You take ${enemy.figther.hardAttackDamage} points of critical damage!`,
+				'error'
+			)
+			updatePlayerHealth(enemy.figther.hardAttackDamage)
 		} else if (
 			x > enemy.figther.weakAttackDice &&
 			x < enemy.figther.hardAttackDice
 		) {
-			let _del = throwDice(300, 500)
-			let attac_msg = `${enemy.figther.name} charges at you with a spear`
-			logText(attac_msg, 'warning')
 			damageTaken('attacke', 'enemy')
-			await sleep(200 + _del)
-			updatePlayerHealth(enemy.figther.weakAttackDamage)
-			let damageText = `⚔️ You take ${enemy.figther.weakAttackDamage} points of damage`
-			logText(damageText, 'error')
+			await sleep(400 + _del)
 			damageTaken('damages', 'player')
+			logText(
+				`⚔️ You take ${enemy.figther.weakAttackDamage} points of damage!`,
+				'error'
+			)
+			updatePlayerHealth(enemy.figther.weakAttackDamage)
 		} else {
 			damageTaken('attacke', 'enemy')
-			let _del = throwDice(300, 500)
-			let attac_msg = `${enemy.figther.name} charges at you with a spear`
-			logText(attac_msg, 'warning')
-			await sleep(100 + _del)
-			logText('💫 The Enemy stumbles over his own feet', 'blank')
+			await sleep(400 + _del)
 			damageTaken('playermiss', 'player')
+			logText('💫 The Enemy stumbles over his own feet!', 'blank')
 		}
-		await sleep(400)
-		logText(`Turn ${turn} End`, 'terminal')
+
+		console.log(
+			`dice: ${x} | hardAtt: ${enemy.figther.hardAttackDice} | weakAtt: ${enemy.figther.weakAttackDice}`
+		)
 	}
 
 	async function weaponAttack(
@@ -114,63 +140,51 @@
 		attackDescription,
 		missDescription
 	) {
-		function enemyDeath() {
-			logText('☠️ Creatura is dead', 'success')
-			ended = true
-		}
-		function playerDeath() {
-			logText('☠️ You are dead', 'error')
-			ended = true
+		function updateEnemyHealth(number) {
+			let nh = enemy.health - number
+			enemy.health = nh < 0 ? 0 : nh
 		}
 		console.clear()
+		let check = await checkBattle()
+		if (!check) return
 		clearLogs()
 		lockActionButtons(true)
 		ended = false
+		battle = 'run'
 		turn++
 		logText(`⌛ Turn ${turn}`, 'terminal')
 		let x = throwDice(1, 10)
 		let _del = throwDice(400, 900)
 		await sleep(800 + _del)
-		if (enemy.health > 0) {
-			await sleep(200)
-			logText(attackName, 'info')
-			await sleep(200)
-			logText(attackDescription, 'info')
-			await sleep(800)
-			// Angriff
-			damageTaken('swing', 'player')
-			if (x > successDice) {
-				// Angriff erfolgreich
-				let damagedeal = `⚔️ You successfully deal ${damage} points of damage to the opponent`
-				let nh = enemy.health - damage
-				enemy.health = nh < 0 ? 0 : nh
-				damageTaken('damages', 'enemy')
-				logText(damagedeal, 'success')
-			} else {
-				// Angriff gescheitert
-				damageTaken('enemymiss', 'enemy')
-				logText(missDescription, 'error')
-			}
-			// Conter Attacke
-			let _dely = throwDice(500, 1500)
-			await sleep(1000 + _dely)
-
-			if (enemy.health > 0) {
-				conterAttack()
-			} else {
-				enemyDeath()
-			}
-
-			await sleep(800)
+		logText(attackName, 'info')
+		await sleep(100)
+		logText(attackDescription, 'info')
+		await sleep(800 + _del)
+		// Angriff
+		damageTaken('swing', 'player')
+		if (x > successDice) {
+			// Angriff erfolgreich
+			damageTaken('damages', 'enemy')
+			logText(
+				`⚔️ You successfully deal ${damage} points of damage to the opponent`,
+				'success'
+			)
+			updateEnemyHealth(damage)
 		} else {
-			enemyDeath()
+			// Angriff gescheitert
+			damageTaken('enemymiss', 'enemy')
+			logText(missDescription, 'error')
 		}
+
+		if (enemy.health > 0) {
+			let _dely = throwDice(500, 1500)
+			await sleep(500 + _dely)
+			conterAttack()
+		}
+
 		await sleep(500)
 		removeAnimation()
-		if (player.health < 1) {
-			playerDeath()
-		}
-		// Turn End!
+		await checkBattle()
 		await sleep(1000)
 		lockActionButtons(false)
 	}
@@ -219,10 +233,10 @@
 			</nav>
 		</header>
 
-		<article class="flex-grow relative bg-gray-50">
-			<div class="grid-container p-4 gap-4">
-				<div class="sector sec1 space-y-4">
-					{#if player.figther}
+		{#if enemy.figther && player.figther}
+			<article class="flex-grow relative bg-gray-50">
+				<div class="grid-container p-4 gap-4">
+					<div class="sector sec1 space-y-4">
 						<SelectFigther
 							label="player"
 							arr={player.list()}
@@ -242,10 +256,8 @@
 								{values}
 								short />
 						{/each}
-					{/if}
-				</div>
-				<div class="sector sec2 space-y-4">
-					{#if enemy.figther}
+					</div>
+					<div class="sector sec2 space-y-4">
 						<SelectFigther
 							label="enemy"
 							arr={enemy.list()}
@@ -264,51 +276,36 @@
 								{values}
 								short />
 						{/each}
-					{/if}
-				</div>
-				<div class="sector sec3 font-serif">
-					{#if player.figther}
-						<PanelBar let:setPanel>
-							<div
-								class="grid grid-cols-3 p-1 gap-1 bg-gray-100 rounded shadow">
-								{#each player.figther.attacks as [attackName, successDice, damage, attackDescription, missDescription], i}
-									<button
-										class="btn"
-										disabled={locked}
-										on:click={() =>
-											weaponAttack(
-												attackName,
-												successDice,
-												damage,
-												attackDescription,
-												missDescription
-											)}>{attackName}</button>
-								{/each}
-							</div>
-
-							<svelte:fragment slot="panel2" let:setPanel>
-								<div class="p-4 flex flex-col gap-2 bg-gray-100 rounded shadow">
-									<label for="devmode_op" class="flex items-center gap-4">
-										<input
-											class="form-check-input"
-											type="checkbox"
-											bind:checked={devmode}
-											id="devmode_op" />
-										<span class="form-check-label">
-											DevMode {devmode ? 'ON' : 'Off'}</span>
-									</label>
-								</div>
-							</svelte:fragment>
-						</PanelBar>
-					{/if}
-				</div>
-				<aside class="sector sec4 terminalhtml rounded">
-					<div class="p-2">
-						<TextLogger />
 					</div>
-				</aside>
-			</div>
-		</article>
+					<footer class="sector sec3">
+						<nav class="grid grid-cols-3 p-1 gap-1 bg-gray-100 rounded shadow">
+							{#each player.figther.attacks as [attackName, successDice, damage, attackDescription, missDescription], i}
+								<button
+									class="btn"
+									disabled={locked}
+									on:click={() =>
+										weaponAttack(
+											attackName,
+											successDice,
+											damage,
+											attackDescription,
+											missDescription
+										)}>{attackName}</button>
+							{/each}
+						</nav>
+					</footer>
+					<aside class="sector sec4 terminalhtml rounded">
+						<div class="p-2">
+							<TextLogger />
+						</div>
+					</aside>
+				</div>
+			</article>
+		{:else}
+			<article class="prose-lg text-center">
+				<h1 class="text-red-600">Error!</h1>
+			</article>
+		{/if}
 	</Layer>
 {/await}
 <ModalV2 />

@@ -8,21 +8,21 @@
       "healthbarId": "player",
       "attacks": [
         [
-          "🗡️ Sword",
-          5, 
+          "Sword",
+          5,
           6,
           "🗡️ You are trying to bash the opponent away with your sword ...",
           "💫 The enemy repels the attack ..."
         ],
         [
-          "🪃 Boomerang",
+          "Boomerang",
           6,
           4,
           "🪃 You are trying hit the enemy with a boomerang ...",
           "💫 The enemy bends down under your attack"
         ],
         [
-          "💣 Granade",
+          "Granade",
           5,
           5,
           "💣 You throw a grenade on your opponent ...",
@@ -38,21 +38,21 @@
       "healthbarId": "player",
       "attacks": [
         [
-          "🪃 Boomerang",
+          "Boomerang",
           4,
           5,
           "🪃 You are trying hit the enemy with a boomerang ...",
           "💫 The enemy bends down under your attack"
         ],
         [
-          "💣 Granade",
+          "Granade",
           7,
           8,
           "💣 You throw a grenade on your opponent ...",
           "💫 The enemy dodges the grenade ..."
         ],
         [
-          "🗡️ Sword",
+          "Sword",
           3,
           3,
           "🗡️ You are trying to bash the opponent away with your sword ...",
@@ -68,21 +68,21 @@
       "healthbarId": "player",
       "attacks": [
         [
-          "🛡️ Shield Bash",
+          "Shield Bash",
           2,
           3,
           "🛡️ You are trying to bash the opponent away with your shield ...",
           "💫 The enemy dodges your attack ..."
         ],
         [
-          "🔨 Mace Attack",
+          "Mace Attack",
           6,
           6,
           "🔨 You are trying hit the enemy with a huge mace ...",
           "💫 The enemy dodges your attack ..."
         ],
         [
-          "🌀 Magic Attack",
+          "Magic Attack",
           1,
           4,
           "🌀 You are trying to cast a spell on your opponent ...",
@@ -98,21 +98,21 @@
       "healthbarId": "player",
       "attacks": [
         [
-          "🛡️ Shield Bash",
+          "Shield Bash",
           2,
           3,
           "🛡️ You are trying to bash the opponent away with your shield ...",
           "💫 The enemy dodges your attack ..."
         ],
         [
-          "🔨 Mace Attack",
+          "Mace Attack",
           6,
           6,
           "🔨 You are trying hit the enemy with a huge mace ...",
           "💫 The enemy dodges your attack ..."
         ],
         [
-          "🌀 Magic Attack",
+          "Magic Attack",
           1,
           4,
           "🌀 You are trying to cast a spell on your opponent ...",
