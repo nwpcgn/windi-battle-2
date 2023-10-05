@@ -1,7 +1,7 @@
 import storage from "../util/storage";
 import { writable } from "svelte/store";
 
-// export const _user = writable(null);
+export const _user = writable(null);
 export const _settings = storage("nwp_settings", {
   name: "SpacePrison",
   titel: "Savage Submarine Legend",
