@@ -11,8 +11,7 @@
 		{ name: 'Start', href: '/' },
 		{ name: 'Battle', href: '/battle' },
 		{ name: 'Editor', href: '/editor' },
-		{ name: 'Settings', href: '/settings' },
-		{ name: 'Error', href: '/drghfc', hidden: true }
+		{ name: 'Settings', href: '/settings' }
 	]
 
 	const initData = async () => {

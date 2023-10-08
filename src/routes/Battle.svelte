@@ -1,5 +1,5 @@
 <script>
-	import { _daten } from '../lib/db'
+	import { _daten, _settings } from '../lib/db'
 	import { path } from 'elegua'
 	import { sleep, clickOutside } from '../lib/util'
 	import { textLog, clearLogs } from '../lib/battle/TextLogger.svelte'
@@ -14,7 +14,7 @@
 	export let pages = []
 	export let title = 'Battle'
 	let player, enemy
-	let devmode = true
+	let devmode = $_settings.op.op1
 	let battle = 'ready'
 	let open = false
 	let ended = true
@@ -105,7 +105,7 @@
 		_del = throwDice(300, 500)
 		if (x >= enemy.figther.hardAttackDice) {
 			damageTaken('attacke', 'enemy')
-			await sleep(400 + _del)
+			await sleep(1000 + _del)
 			damageTaken('damages', 'player')
 			logText(
 				`⚔️ You take ${enemy.figther.hardAttackDamage} points of critical damage!`,
@@ -117,7 +117,7 @@
 			x < enemy.figther.hardAttackDice
 		) {
 			damageTaken('attacke', 'enemy')
-			await sleep(400 + _del)
+			await sleep(1000 + _del)
 			damageTaken('damages', 'player')
 			logText(
 				`⚔️ You take ${enemy.figther.weakAttackDamage} points of damage!`,
@@ -126,14 +126,13 @@
 			updatePlayerHealth(enemy.figther.weakAttackDamage)
 		} else {
 			damageTaken('attacke', 'enemy')
-			await sleep(400 + _del)
+			await sleep(1000 + _del)
 			damageTaken('playermiss', 'player')
 			logText('💫 The Enemy stumbles over his own feet!', 'blank')
 		}
-		await sleep(800)
-		logText(`⌛ Turn end!`, 'terminal')
+
 		console.log(
-			`dice: ${x} | hardAtt: ${enemy.figther.hardAttackDice} | weakAtt: ${enemy.figther.weakAttackDice}`
+			`Enemy: ${x} | hardAtt: ${enemy.figther.hardAttackDice} | weakAtt: ${enemy.figther.weakAttackDice}`
 		)
 	}
 
@@ -160,11 +159,11 @@
 		logText(`⌛ Turn ${turn}!`, 'terminal')
 		let x = throwDice(1, 10)
 		let _del = throwDice(400, 900)
-		await sleep(800 + _del)
+		await sleep(600 + _del)
 		logText(attackName, 'info')
-		await sleep(100)
+		await sleep(400)
 		logText(attackDescription, 'info')
-		await sleep(800 + _del)
+		await sleep(600 + _del)
 		// Angriff
 		damageTaken('swing', 'player')
 		if (x > successDice) {
@@ -180,16 +179,19 @@
 			damageTaken('enemymiss', 'enemy')
 			logText(missDescription, 'error')
 		}
+		console.log(`Player: ${x} | sucDice: ${successDice} | damage: ${damage}`)
 
 		if (enemy.health > 0) {
 			let _dely = throwDice(500, 1500)
 			await sleep(500 + _dely)
-			conterAttack()
+			await conterAttack()
 		}
 
 		await sleep(500)
-		removeAnimation()
+		logText(`⌛ Turn end!`, 'terminal')
+		await sleep(500)
 		await checkBattle()
+		removeAnimation()
 		await sleep(1000)
 		lockActionButtons(false)
 	}
@@ -281,9 +283,9 @@
 							class:opacity-5={open || locked}>
 							<button on:click={() => (open = true)} class="btn flex-1"
 								>Fight</button>
-							<button on:click={() => $path === '/settings'} class="btn flex-1"
+							<button on:click={() => ($path = '/settings')} class="btn flex-1"
 								>Settings</button>
-							<button on:click={() => $path === '/'} class="btn flex-1"
+							<button on:click={() => ($path = '/')} class="btn flex-1"
 								>Exit</button>
 						</nav>
 						<nav

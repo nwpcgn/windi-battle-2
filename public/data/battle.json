@@ -1,32 +1,32 @@
 {
   "player": [
     {
-      "name": "🦸 Rexx Tronton",
+      "name": "🦸 Shaman Tronton",
       "health": 29,
       "maxHealth": 28,
       "pointsId": "player",
       "healthbarId": "player",
       "attacks": [
         [
-          "Sword",
-          5,
+          "True Death",
+          4,
           6,
-          "🗡️ You are trying to bash the opponent away with your sword ...",
-          "💫 The enemy repels the attack ..."
+          "You create a wind of spikes which will lauch at your opponent ...",
+          "The enemy escaped your attack!"
         ],
         [
-          "Boomerang",
+          "Knife Blast",
           6,
           4,
-          "🪃 You are trying hit the enemy with a boomerang ...",
-          "💫 The enemy bends down under your attack"
+          "You lauch a portal knife at your opponent ...",
+          "The enemy bends down under your attack!"
         ],
         [
-          "Granade",
+          "Power Blast",
           5,
           5,
-          "💣 You throw a grenade on your opponent ...",
-          "💫 The enemy dodges the grenade ..."
+          "You create a heavy boulder and drop it onto your opponent ...",
+          "The enemy dodges the attack!"
         ]
       ]
     },
